@@ -4,6 +4,7 @@ import org.junit.*;
 
 public class BoardTest {
     @Test
+
     public void testEmptyBoard() {
         //Given
         Board board = new Board(BoardSize.MAX_ROWS, BoardSize.MAX_COLS);

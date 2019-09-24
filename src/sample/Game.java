@@ -19,6 +19,7 @@ public class Game {
 
     public Scene startGame() {
         BorderPane root = userInterface.borderWithMenu();
+
         root.setCenter(userInterface.getBoard());
         Scene scene = new Scene(root, 300, 350, Color.WHITE);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
