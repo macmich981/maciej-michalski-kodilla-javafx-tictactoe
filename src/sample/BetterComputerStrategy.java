@@ -1,10 +1,6 @@
 package sample;
 
-
-import java.util.Random;
-
 public class BetterComputerStrategy {
-    private static final Random RANDOM= new Random();
 
     public static void computerMove(Cell[][] cells) {
         //end to win
