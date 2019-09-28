@@ -6,7 +6,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 
-
 public class Game {
     private UserInterface userInterface;
     private static final String TITLE = "Kółko i krzyżyk";
@@ -46,7 +45,7 @@ public class Game {
                         }
                         userInterface.getLblState().setText("");
                         if (!gameDefinition.isPlayerFirst() && gameDefinition.getActualRound() <= gameDefinition.getMaxRound()) {
-                            ComputerStrategy.computerMove(userInterface.getBoard().getCells(), BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
+                            BetterComputerStrategy.computerMove(userInterface.getBoard().getCells());//, BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
                             gameDefinition.setPlayerFirst(true);
                         } else {
                             gameDefinition.setPlayerFirst(false);

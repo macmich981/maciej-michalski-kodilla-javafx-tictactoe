@@ -1,19 +1,12 @@
 package sample;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import javax.swing.plaf.TableHeaderUI;
-import java.util.concurrent.TimeUnit;
 
 public class UserInterface {
     private Stage primaryStage;
@@ -43,11 +36,11 @@ public class UserInterface {
 
     public boolean move(Cell cell) {
         if (cell.getOwnerPlayer().equals(Owner.EMPTY)) {
-            Move.drawMoveO(cell);
             cell.setOwnerPlayer(Owner.O);
+            Move.drawMoveO(cell);
             boolean gameResult = new GameResolver(getBoard().getCells(), this).findSameAs();
             if (!gameResult) {
-                ComputerStrategy.computerMove(board.getCells(), maxRows, maxCols);
+                BetterComputerStrategy.computerMove(board.getCells());//, maxRows, maxCols);
                 gameResult = new GameResolver(getBoard().getCells(), this).findSameAs();
             }
             return gameResult;
@@ -62,6 +55,7 @@ public class UserInterface {
         VBox menus = new VBox();
         HBox results = new HBox();
         MenuItem newGame = new MenuItem("Nowa gra");
+        MenuItem showRanking = new MenuItem("Pokaż ranking");
 
         newGame.setOnAction(event -> {
             Cell[][] cells = getBoard().getCells();
@@ -79,9 +73,23 @@ public class UserInterface {
             gameDefinition.setGameOver(false);
         });
 
+        showRanking.setOnAction(event -> {
+            AnchorPane rankingLayout = new AnchorPane();
+            TextArea rankingText = new TextArea();
+
+            rankingLayout.getChildren().add(rankingText);
+            Scene rankingScene = new Scene(rankingLayout, 500, 100);
+            Stage newWindow = new Stage();
+            newWindow.setTitle("Ranking gier");
+            newWindow.setResizable(false);
+            newWindow.initModality(Modality.APPLICATION_MODAL);
+            newWindow.setScene(rankingScene);
+            newWindow.show();
+        });
+
         lblMaxRounds.setText("Runda: " + (gameDefinition.getActualRound()) + "/" + gameDefinition.getMaxRound());
         lblState.setText("Kliknij \"Gra\", aby rozpocząć... ");
-        menu.getItems().add(newGame);
+        menu.getItems().addAll(newGame, showRanking);
         menuBar.getMenus().add(menu);
         menus.getChildren().addAll(menuBar, results);
         results.setSpacing(10);
