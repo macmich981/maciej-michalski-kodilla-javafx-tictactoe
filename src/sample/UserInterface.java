@@ -2,17 +2,19 @@ package sample;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.jws.soap.SOAPBinding;
+
 public class UserInterface {
-    private Stage primaryStage;
     private Board board;
-    private final int maxRows = BoardSize.MAX_ROWS;
-    private final int maxCols = BoardSize.MAX_COLS;
     private Label lblState;
     private GameDefinition gameDefinition;
     private Label lblResultX;
@@ -20,9 +22,8 @@ public class UserInterface {
     private Label lblMaxRounds;
 
 
-    public UserInterface(Stage primaryStage, GameDefinition gameDefinition) {
-        this.primaryStage = primaryStage;
-        this.board = new Board(maxRows, maxCols);
+    public UserInterface(GameDefinition gameDefinition) {
+        this.board = new Board(BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
         this.lblState = new Label();
         this.lblMaxRounds = new Label();
         this.lblResultO = new Label();
@@ -38,10 +39,38 @@ public class UserInterface {
         if (cell.getOwnerPlayer().equals(Owner.EMPTY)) {
             cell.setOwnerPlayer(Owner.O);
             Move.drawMoveO(cell);
-            boolean gameResult = new GameResolver(getBoard().getCells(), this).findSameAs();
+            boolean gameResult = new GameResolver(board.getCells(), this).findSameAs();
             if (!gameResult) {
-                BetterComputerStrategy.computerMove(board.getCells());//, maxRows, maxCols);
-                gameResult = new GameResolver(getBoard().getCells(), this).findSameAs();
+                /*Task<Void> sleeper = new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        try {
+                            board.setDisable(true);
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                        }
+                        return null;
+                    }
+                };
+
+                sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        if (gameDefinition.getDifficultyLevel().equals(DifficultyLevel.HARDER)) {
+                            BetterComputerStrategy.computerMove(board.getCells());
+                        } else {
+                            ComputerStrategy.computerMove(board.getCells(), BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
+                        }
+                        board.setDisable(false);
+                    }
+                });
+                new Thread(sleeper).start();*/
+                if (gameDefinition.getDifficultyLevel().equals(DifficultyLevel.HARDER)) {
+                    BetterComputerStrategy.computerMove(board.getCells());
+                } else {
+                    ComputerStrategy.computerMove(board.getCells(), BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
+                }
+                gameResult = new GameResolver(board.getCells(), this).findSameAs();
             }
             return gameResult;
         }
@@ -55,16 +84,8 @@ public class UserInterface {
         VBox menus = new VBox();
         HBox results = new HBox();
         MenuItem newGame = new MenuItem("Nowa gra");
-        MenuItem showRanking = new MenuItem("Pokaż ranking");
 
         newGame.setOnAction(event -> {
-            Cell[][] cells = getBoard().getCells();
-            for (int row = 0; row < BoardSize.MAX_ROWS; row++) {
-                for (int col = 0; col < BoardSize.MAX_COLS; col++) {
-                    cells[row][col].setOwnerPlayer(Owner.EMPTY);
-                    cells[row][col].getChildren().clear();
-                }
-            }
             gameOptions();
             gameDefinition.setPointsX(0);
             gameDefinition.setPointsO(0);
@@ -73,27 +94,16 @@ public class UserInterface {
             gameDefinition.setGameOver(false);
         });
 
-        showRanking.setOnAction(event -> {
-            AnchorPane rankingLayout = new AnchorPane();
-            TextArea rankingText = new TextArea();
-
-            rankingLayout.getChildren().add(rankingText);
-            Scene rankingScene = new Scene(rankingLayout, 500, 100);
-            Stage newWindow = new Stage();
-            newWindow.setTitle("Ranking gier");
-            newWindow.setResizable(false);
-            newWindow.initModality(Modality.APPLICATION_MODAL);
-            newWindow.setScene(rankingScene);
-            newWindow.show();
-        });
-
         lblMaxRounds.setText("Runda: " + (gameDefinition.getActualRound()) + "/" + gameDefinition.getMaxRound());
         lblState.setText("Kliknij \"Gra\", aby rozpocząć... ");
-        menu.getItems().addAll(newGame, showRanking);
+
+        menu.getItems().add(newGame);
         menuBar.getMenus().add(menu);
         menus.getChildren().addAll(menuBar, results);
+
         results.setSpacing(10);
         results.getChildren().addAll(lblResultX, lblResultO, lblMaxRounds);
+
         root.setStyle("-fx-background-color: #cdc06c");
         root.setTop(menus);
         root.setBottom(lblState);
@@ -115,31 +125,47 @@ public class UserInterface {
                                 Integer oldValue, Integer newValue) {
             }
         });
+
+        ComboBox<String> comboDifficultyLevel = new ComboBox();
+        comboDifficultyLevel.getItems().addAll("Łatwy", "Trudniejszy");
+        comboDifficultyLevel.getSelectionModel().select(0);
+
         Button btnOk = new Button("Ok");
         Button btnCancel = new Button("Anuluj");
 
-        secondaryLayout.getChildren().addAll(spinner, btnOk, btnCancel);
+        secondaryLayout.getChildren().addAll(comboDifficultyLevel, spinner, btnOk, btnCancel);
         AnchorPane.setTopAnchor(spinner, 40.0);
-        AnchorPane.setLeftAnchor(spinner, 50.0);
+        AnchorPane.setLeftAnchor(spinner, 140.0);
+        AnchorPane.setTopAnchor(comboDifficultyLevel, 40.0);
+        AnchorPane.setLeftAnchor(comboDifficultyLevel, 25.0);
         AnchorPane.setBottomAnchor(btnOk, 10.0);
-        AnchorPane.setLeftAnchor(btnOk, 75.0);
+        AnchorPane.setLeftAnchor(btnOk, 100.0);
         AnchorPane.setBottomAnchor(btnCancel, 10.0);
-        AnchorPane.setLeftAnchor(btnCancel, 125.0);
+        AnchorPane.setLeftAnchor(btnCancel, 150.0);
 
-        Scene secondScene = new Scene(secondaryLayout, 230, 100);
+        Scene secondScene = new Scene(secondaryLayout, 300, 100);
         Stage newWindow = new Stage();
-        newWindow.setTitle("Ustaw liczbę rund");
+        newWindow.setTitle("Ustaw poziom trudności i liczbę rund");
         newWindow.setResizable(false);
         newWindow.initModality(Modality.APPLICATION_MODAL);
         newWindow.setScene(secondScene);
         newWindow.show();
 
         btnOk.setOnAction(event -> {
+            board.clear();
             gameDefinition.setActualRound(1);
+            if (comboDifficultyLevel.getValue().equals("Łatwy")) {
+                gameDefinition.setDifficultyLevel(DifficultyLevel.EASY);
+                System.out.println(gameDefinition.getDifficultyLevel());
+            } else {
+                gameDefinition.setDifficultyLevel(DifficultyLevel.HARDER);
+                System.out.println(gameDefinition.getDifficultyLevel());
+            }
             gameDefinition.setMaxRound(spinner.getValue());
             lblMaxRounds.setText("Runda: " + gameDefinition.getActualRound() + "/" + spinner.getValue().toString());
             newWindow.close();
         });
+
         btnCancel.setOnAction(event -> {
             newWindow.close();
         });

@@ -80,7 +80,7 @@ public class BetterComputerStrategy {
         }
 
 //block user
-        for (int i=0; i<3; i++) {
+        for (int i = 0; i < 3; i++) {
             if (cells[i][0].getOwnerPlayer().equals(Owner.O) && cells[i][1].getOwnerPlayer().equals(Owner.O)
                     && cells[i][2].getOwnerPlayer().equals(Owner.EMPTY)) {
                 cells[i][2].setOwnerPlayer(Owner.X);

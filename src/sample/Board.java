@@ -21,6 +21,16 @@ public class Board extends GridPane {
         }
     }
 
+    public void clear() {
+        for (int row = 0; row < BoardSize.MAX_ROWS; row++) {
+            for (int col = 0; col < BoardSize.MAX_COLS; col++) {
+                cells[row][col].setOwnerPlayer(Owner.EMPTY);
+                cells[row][col].getChildren().clear();
+                cells[row][col].setStyle("-fx-border-color: black; -fx-background-color: #40cd34");
+            }
+        }
+    }
+
     public Cell[][] getCells() {
         return cells;
     }

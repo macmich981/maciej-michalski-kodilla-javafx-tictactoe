@@ -7,6 +7,7 @@ public class GameDefinition {
     private int pointsO;
     private boolean gameOver;
     private boolean playerFirst;
+    private DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
 
     public int getMaxRound() {
         return maxRound;
@@ -61,5 +62,13 @@ public class GameDefinition {
 
     public void setPlayerFirst(boolean playerFirst) {
         this.playerFirst = playerFirst;
+    }
+
+    public DifficultyLevel getDifficultyLevel() {
+        return difficultyLevel;
+    }
+
+    public void setDifficultyLevel(DifficultyLevel difficultyLevel) {
+        this.difficultyLevel = difficultyLevel;
     }
 }
