@@ -7,13 +7,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
         GameDefinition gameDefinition = new GameDefinition();
-        UserInterface userInterface = new UserInterface(primaryStage, gameDefinition);
+        UserInterface userInterface = new UserInterface(gameDefinition);
         Game game = new Game(userInterface, gameDefinition);
 
         primaryStage.setTitle(game.getTitle());
-        primaryStage.setScene(game.startGame());
+        primaryStage.setScene(game.play());
         primaryStage.setResizable(false);
         primaryStage.show();
     }

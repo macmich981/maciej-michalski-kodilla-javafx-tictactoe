@@ -6,7 +6,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 
-
 public class Game {
     private UserInterface userInterface;
     private static final String TITLE = "Kółko i krzyżyk";
@@ -17,8 +16,9 @@ public class Game {
         this.gameDefinition = gameDefinition;
     }
 
-    public Scene startGame() {
+    public Scene play() {
         BorderPane root = userInterface.borderWithMenu();
+
         root.setCenter(userInterface.getBoard());
         Scene scene = new Scene(root, 300, 350, Color.WHITE);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
@@ -31,21 +31,18 @@ public class Game {
                         gameDefinition.setGameOver(userInterface.move(cell));
                     }
                 } else {
-                    Cell[][] cells = userInterface.getBoard().getCells();
-                    for (int row = 0; row < BoardSize.MAX_ROWS; row++) {
-                        for (int col = 0; col < BoardSize.MAX_COLS; col++) {
-                            cells[row][col].setOwnerPlayer(Owner.EMPTY);
-                            cells[row][col].getChildren().clear();
-                            cells[row][col].setStyle("-fx-border-color: black; -fx-background-color: #40cd34");
-                        }
-                    }
+                    userInterface.getBoard().clear();
                     if (gameDefinition.getActualRound() <= gameDefinition.getMaxRound() && gameDefinition.getActualRound() != 0) {
                         if (gameDefinition.getActualRound() <= gameDefinition.getMaxRound()) {
                             gameDefinition.setActualRound(gameDefinition.getActualRound() + 1);
                         }
                         userInterface.getLblState().setText("");
                         if (!gameDefinition.isPlayerFirst() && gameDefinition.getActualRound() <= gameDefinition.getMaxRound()) {
-                            ComputerStrategy.computerMove(userInterface.getBoard().getCells(), BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
+                            if (gameDefinition.getDifficultyLevel().equals(DifficultyLevel.HARDER)) {
+                                BetterComputerStrategy.computerMove(userInterface.getBoard().getCells());
+                            } else {
+                                ComputerStrategy.computerMove(userInterface.getBoard().getCells(), BoardSize.MAX_ROWS, BoardSize.MAX_COLS);
+                            }
                             gameDefinition.setPlayerFirst(true);
                         } else {
                             gameDefinition.setPlayerFirst(false);
