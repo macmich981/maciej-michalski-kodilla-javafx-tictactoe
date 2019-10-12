@@ -122,7 +122,11 @@ public class GameResolver {
 
     private void showWinner(Cell[] cell) {
         for (int i = 0; i < BoardSize.MAX_ROWS; i++) {
-            cell[i].setStyle("-fx-border-color: black; -fx-background-color: #cd6427");
+            if (cell[0].getOwnerPlayer().equals(Owner.O)) {
+                cell[i].setStyle("-fx-border-color: black; -fx-background-color: #15c6cd");
+            } else {
+                cell[i].setStyle("-fx-border-color: black; -fx-background-color: #cd6427");
+            }
         }
         if (cell[0].getOwnerPlayer().equals(Owner.O)) {
             userInterface.getGameDefinition().addPointsO();
